@@ -1,0 +1,564 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.*;
+
+
+public class Main implements ActionListener {
+    private JFrame HauptmenueFrame;
+    private JFrame MitarbeiterVerwaltungFrame;
+    private JFrame PraktikatenVerwaltungFrame;
+    private JFrame ElternVerwaltungFrame;
+    private JFrame KinderVerwaltungFrame;
+    private JFrame BetreungsplanFrame;
+    private JFrame DokumentationFrame;
+    private JFrame FinanzenFrame;
+    Connection connection = null;
+
+
+    public static void main(String[] args) {
+        Main main = new Main();
+        main.Haupt();
+    }
+
+    public class MariaDBConnection {
+        public static void main(String[] args) {
+            Connection connection = null;
+            try {
+                // Treiber laden
+                Class.forName("com.mariadb.jdbc.Driver");
+
+                // Verbindung
+                String url = "jdbc:mysql://localhost:3306/kitadb";
+                String user = "root";
+                String password = " ";
+                connection = DriverManager.getConnection(url, user, password);
+
+                // erfolgreich?
+                System.out.println("Verbindung zur Datenbank hergestellt.");
+            } catch (ClassNotFoundException e) {
+                System.out.println("MySQL JDBC Driver not found");
+                e.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                // Schließen wenn nicht mehr notwendig
+                if (connection != null) {
+                    try {
+                        connection.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+
+    private void Haupt() {
+        HauptmenueFrame = new JFrame("Verwaltungssoftware");
+        HauptmenueFrame.setSize(500, 600);
+        HauptmenueFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+
+
+        JPanel Hauptmenue = new JPanel();
+        HauptmenueFrame.getContentPane().add(Hauptmenue);
+
+
+        addButton(Hauptmenue, "Mitarbeiter Verwaltung");
+        addButton(Hauptmenue, "Praktikanten Verwaltung");
+        addButton(Hauptmenue, "Eltern Verwaltung");
+        addButton(Hauptmenue, "Kinder Verwaltung");
+        addButton(Hauptmenue, "Betreuungsplan");
+        addButton(Hauptmenue, "Dokumentation");
+        addButton(Hauptmenue, "Finanzen");
+
+
+
+        DBconnection();
+
+        HauptmenueFrame.setVisible(true);
+    }
+
+
+
+
+    private void addButton(JPanel panel, String buttonText) {
+        JButton button = new JButton(buttonText);
+        button.addActionListener(this);
+        panel.add(button);
+    }
+
+
+
+
+    private void addExitButton(JPanel panel, JFrame frame) {
+        JButton exitButton = new JButton("Exit");
+        exitButton.addActionListener(e -> frame.dispose());
+        panel.add(exitButton);
+    }
+
+
+
+
+    private void showSubFrame(JFrame frame, String title, String... buttons) {
+        frame.setTitle(title);
+        frame.getContentPane().removeAll();
+        JPanel panel = new JPanel();
+        frame.getContentPane().add(panel);
+        for (String buttonText : buttons) {
+            addButton(panel, buttonText);
+        }
+        addExitButton(panel, frame);
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+
+
+
+    private void MitarbeiterV() {
+        MitarbeiterVerwaltungFrame = new JFrame();
+        MitarbeiterVerwaltungFrame.setSize(500, 600);
+
+
+
+
+
+
+
+
+        showSubFrame(MitarbeiterVerwaltungFrame, "Mitarbeiter Verwaltung",
+                "Mitarbeiterstammdaten", "Stellenbeschreibung", "Urlaubsplanung",
+                "Mitarbeiterzeiterfassung", "Fortbildung", "Mitarbeiter hochladen","Mitarbeiter herunterladen",
+                "Mitarbeiter eintragen", "Mitarbeiter bearbeiten", "Mitarbeiter suchen");
+
+
+    }
+
+
+
+
+    private void PraktikantV()
+    {
+        PraktikatenVerwaltungFrame = new JFrame();
+        PraktikatenVerwaltungFrame.setSize(500, 600);
+        PraktikatenVerwaltungFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+
+
+
+        showSubFrame(PraktikatenVerwaltungFrame, "Praktikanten Verwaltung",
+                "PraktikatenStammdaten", "Praktikumsvertrag", "Betreungsaufgaben",
+                "Praktikumsbericht", "PraktikatenZeiterfassung","Praktikant herunterladen","Praktikant hochladen",
+                "Praktikant eintragen", "Praktikant bearbeiten", "Praktikant suchen");
+    }
+
+
+
+
+    private void ElternV() {
+        ElternVerwaltungFrame = new JFrame();
+        ElternVerwaltungFrame.setSize(500, 600);
+        ElternVerwaltungFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+
+
+
+        showSubFrame(ElternVerwaltungFrame, "Eltern Verwaltung",
+                "ElternStammdaten", "Beziehung zum Kind", "Betreungsverträge",
+                "Kommunikation", "Zahlungsinformationen","Eltern hochladen", "Eltern herunterladen",
+                "Eltern eintragen", "Eltern bearbeiten", "Eltern suchen");
+    }
+
+
+
+
+    private void KinderV() {
+        KinderVerwaltungFrame = new JFrame();
+        KinderVerwaltungFrame.setSize(500, 600);
+        KinderVerwaltungFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+
+
+
+        showSubFrame(KinderVerwaltungFrame, "Kinder Verwaltung",
+                "KinderStammdaten", "Kinderbetreuungszeiten", "Kinderentwicklungsverlauf",
+                "Kinder herunterladen", "Kinder hochladen", "Kinder eintragen", "Kinder bearbeiten", "Kinder suchen");
+    }
+    private void BetreuungsplanP() {
+        BetreungsplanFrame = new JFrame();
+        BetreungsplanFrame.setSize(500, 600);
+        BetreungsplanFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+
+
+
+        showSubFrame(BetreungsplanFrame, "Betreuungsplan",
+                "Betreuungsdaten", "Betreuungszeiten", "Entwicklungsverlauf",
+                "Betreuungsplan herunterladen","Betreuungsplan hochladen", "Betreuungsplan eintragen",
+                "Betreuungsplan bearbeiten", "Betreuungsplan suchen");
+    }
+
+
+
+
+    private void DokumentationP() {
+        DokumentationFrame = new JFrame();
+        DokumentationFrame.setSize(500, 600);
+        DokumentationFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+
+
+
+        showSubFrame(DokumentationFrame, "Dokumentation",
+                "Wochenpläne", "Urlaubspläne", "DokumentationZeiterfassung",
+                "Dokument herunterladen","Dokument hochladen", "Dokument eintragen", "Dokument bearbeiten", "Dokument suchen");
+    }
+
+
+
+
+    private void FinanzenP() {
+        FinanzenFrame = new JFrame();
+        FinanzenFrame.setSize(1000, 1200);
+        FinanzenFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+
+
+
+        showSubFrame(FinanzenFrame, "Finanzen",
+                "Elternbrief", "Aushänge", "E-Mails",
+                "Finanzen Hochladen", "Finanzen Herunterladen","Finanzen eintragen", "Finanzen bearbeiten", "Finanzen suchen");
+
+
+    }
+
+
+
+
+    @Override
+    public void actionPerformed(ActionEvent b) {
+        JButton buttonClicked = (JButton) b.getSource();
+        String buttonText = buttonClicked.getText();
+
+
+
+
+        switch (buttonText) {
+            //TODO Hauptmenü
+            case "Mitarbeiter Verwaltung":
+                MitarbeiterV();
+                break;
+            case "Praktikanten Verwaltung":
+                PraktikantV();
+                break;
+            case "Eltern Verwaltung":
+                ElternV();
+                break;
+            case "Kinder Verwaltung":
+                KinderV();
+                break;
+            case "Betreuungsplan":
+                BetreuungsplanP();
+                break;
+            case "Dokumentation":
+                DokumentationP();
+                break;
+            case "Finanzen":
+                FinanzenP();
+                break;
+
+
+            //TODO Mitarbeiter Verwaltung
+
+
+            case "Mitarbeiterstammdaten":
+                System.out.println("Mitarbeiterstammdaten");
+                //SELECT Vorname, Nachname
+                //FROM person
+                //where Gruppe <4;
+                try {
+                    DBadresse(DBbefehl("SELECT person.Vorname, person.Nachname, adress.Straße, adress.Hausnummer, adress.Ort, adress.Postleitzahl\n" +
+                                    "From person\n" +
+                                    "INNER JOIN adress ON person.AdressID = adress.AdressID;"),
+                            "Vorname","Nachname","Straße","Hausnummer", "Ort", "Postleitzahl");
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case "Stellenbeschreibung":
+                System.out.println("Stellenbeschreibung");
+                break;
+            case "Urlaubsplanung":
+                System.out.println("Urlaubsplanung");
+                break;
+            case "Mitarbeiterzeiterfassung":
+                System.out.println("Mitarbeiterzeiterfassung");
+                break;
+            case "Fortbildung":
+                System.out.println("Fortbildung");
+                break;
+            case "Mitarbeiter hochladen":
+                System.out.println("Mitarbeiter Hochladen");
+                break;
+            case "Mitarbeiter herunterladen":
+                System.out.println("Mitarbeiter Herunterladen");
+                break;
+            case "Mitarbeiter eintragen":
+                System.out.println("Mitarbeiter eintragen");
+                break;
+            case "Mitarbeiter bearbeiten":
+                System.out.println("Mitarbeiter bearbeiten");
+                break;
+            case "Mitarbeiter suchen":
+                System.out.println("Mitarbeiter suchen");
+                break;
+
+
+            //TODO Praktikanten Verwaltung
+
+
+            case "PraktikatenStammdaten":
+                System.out.println("PraktikatenStammdaten");
+                break;
+            case "Praktikumsvertrag":
+                System.out.println("Praktikumsvertrag");
+                break;
+            case "Betreungsaufgaben":
+                System.out.println("Betreungsaufgaben");
+                break;
+            case "Praktikumsbericht":
+                System.out.println("Praktikumsbericht");
+                break;
+            case "PraktikatenZeiterfassung":
+                System.out.println("PraktikatenZeiterfassung");
+                break;
+            case "Praktikant herunterladen":
+                System.out.println("Praktikant herunterladen");
+                break;
+            case "Praktikant hochladen":
+                System.out.println("Praktikant hochladen");
+                break;
+            case "Praktikant eintragen":
+                System.out.println("Praktikant eintragen");
+                break;
+            case "Praktikant bearbeiten":
+                System.out.println("Praktikant bearbeiten");
+                break;
+            case "Praktikant suchen":
+                System.out.println("Praktikant suchen");
+                break;
+
+
+
+
+            //TODO Eltern Verwaltung
+            case "ElternStammdaten":
+                System.out.println("ElternStammdaten");
+                break;
+            case "Beziehung zum Kind":
+                System.out.println("Beziehung zum Kind");
+                //SELECT Vorname, Nachname
+                //FROM person
+                //where Gruppe = 10;
+                try {
+                    DBabfrage(DBbefehl("SELECT Vorname, Nachname FROM Person where Gruppe = 10"),"Vorname","Nachname");
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case "Betreungsverträge":
+                System.out.println("Betreungsverträge");
+                break;
+            case "Kommunikation":
+                System.out.println("Kommunikation");
+                break;
+            case "Zahlungsinformationen":
+                System.out.println("Zahlungsinformationen");
+                break;
+            case "Eltern hochladen":
+                System.out.println("Eltern hochladen");
+                break;
+            case "Eltern herunterladen":
+                System.out.println("Eltern herunterladen");
+            case "Eltern eintragen":
+                System.out.println("Eltern eintragen");
+                break;
+            case "Eltern bearbeiten":
+                System.out.println("Eltern bearbeiten");
+                break;
+            case "Eltern suchen":
+                System.out.println("Eltern suchen");
+                break;
+            //TODO Kinder Verwaltung
+            case "KinderStammdaten":
+                System.out.println("KinderStammdaten");
+                break;
+            case "Kinderbetreuungszeiten":
+                System.out.println("Kinderbetreuungszeiten");
+                break;
+            case "Kinderentwicklungsverlauf":
+                System.out.println("Kinderentwicklungsverlauf");
+                break;
+            case "Kinder herunterladen":
+                System.out.println("Kinder herunterladen");
+                break;
+            case "Kinder hochladen":
+                System.out.println("Kinder hochladen");
+                break;
+            case "Kinder eintragen":
+                System.out.println("Kinder eintragen");
+                break;
+            case "Kinder bearbeiten":
+                System.out.println("Kinder bearbeiten");
+                break;
+            case "Kinder suche":
+                System.out.println("Kinder suche");
+                break;
+            //TODO Betreuungsplan
+            case "Betreuungsdaten":
+                System.out.println("Betreuungsdaten");
+                break;
+            case "Betreuungszeiten":
+                System.out.println("Betreuungszeiten");
+                break;
+            case "Entwicklungsverlauf":
+                System.out.println("Entwicklungsverlauf");
+                break;
+            case "Betreuungsplan herunterladen":
+                System.out.println("Betreuungsplan herunterladen");
+                break;
+            case "Betreuungsplan hochladen":
+                System.out.println("Betreuungsplan hochladen");
+                break;
+            case "Betreuungsplan eintragen":
+                System.out.println("Betreuungsplan eintragen");
+                break;
+            case "Betreuungsplan bearbeiten":
+                System.out.println("Betreuungsplan bearbeiten");
+                break;
+            case "Betreuungsplan suchen":
+                System.out.println("Betreuungsplan suchen");
+                break;
+            //TODO Dokumentation
+            case "Wochenpläne":
+                System.out.println("Wochenpläne");
+                break;
+            case "Urlaubspläne":
+                System.out.println("Urlaubspläne");
+                break;
+            case "DokumentationZeiterfassung":
+                System.out.println("DokumentationZeiterfassung");
+                break;
+            case "Dokument herunterladen":
+                System.out.println("Dokument herunterladen");
+                break;
+            case "Dokument hochladen":
+                System.out.println("Dokument hochladen");
+                break;
+            case "Dokument eintragen":
+                System.out.println("Dokument eintragen");
+                break;
+            case "Dokument bearbeiten":
+                System.out.println("Dokument bearbeiten");
+                break;
+            case "Dokument suchen":
+                System.out.println("Dokument suchen");
+                break;
+            //TODO Finanzen
+            case "Elternbrief":
+                try {
+                    DBabfrage(DBbefehl("SELECT Vorname, Nachname FROM Person"),"Vorname","Nachname");
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case "Aushänge":
+                System.out.println("Aushänge");
+                break;
+            case "E-Mails":
+                System.out.println("E-Mails");
+                break;
+            case "Finanzen Hochladen":
+                System.out.println("Finanzen Hochladen");
+                break;
+            case "Finanzen Herunterladen":
+                System.out.println("Finanzen Herunterladen");
+                break;
+            case "Finanzen eintragen":
+                System.out.println("Finanzen eintragen");
+                break;
+            case "Finanzen bearbeiten":
+                System.out.println("Finanzen bearbeiten");
+                break;
+            case "Finanzen suchen":
+                System.out.println("Finanzen suchen");
+                break;
+
+
+            case "Stammdaten":
+                System.out.println("Hi Ilya");
+                break;
+            default:
+                break;
+        }
+    }
+    void DBconnection(){
+        try {
+            // Verbindung herstellen
+            connection = DriverManager.getConnection("jdbc:mariadb://localhost:3306/kitadb?user=root");
+
+            System.out.println("DB connection erfolgreich!");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    ResultSet DBbefehl(String sql) {
+        try {
+            // Ausführen des Befehls
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            return resultSet;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    void DBabfrage(ResultSet Resault,String Wert1,String Wert2) throws SQLException {
+        try {
+            while (Resault.next()) {
+                String DBWert1 = Resault.getString(Wert1);
+                String DBWert2 = Resault.getString(Wert2);
+                System.out.println(Wert1+": " + DBWert1 + ", "+Wert2+": " + DBWert2);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    void DBadresse(ResultSet Resault,String Wert1,String Wert2, String Straße, String Hausnummer, String Ort, String Postleitzahl) throws SQLException {
+        try {
+            while (Resault.next()) {
+                String DBWert1 = Resault.getString("person."+Wert1);
+                String DBWert2 = Resault.getString("person."+Wert2);
+                String DBStraße = Resault.getString("adress."+Straße);
+                String DBHausnummer = Resault.getString("adress."+Hausnummer);
+                String DBOrt = Resault.getString("adress."+Ort);
+                String DBPostleitzahl = Resault.getString("adress."+Postleitzahl);
+                System.out.println(Wert1+": " + DBWert1 + ", "+Wert2+": " + DBWert2+" | "
+                        + DBStraße + ", "+ DBHausnummer+ ", "+ DBOrt+", "+ DBPostleitzahl);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+
+
+
+
+
+
